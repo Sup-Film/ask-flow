@@ -5,16 +5,12 @@ import {
   embedDocumentSchema,
 } from "../../schemas/documents.schema";
 
-export const DocumentRouter = new Elysia({ prefix: "/documents" })
-  .post(
-    "/upload",
-    ({ body }) => DocumentController.upload(body),
-    uploadDocumentSchema
-  )
-  .post(
-    "/:id/embed",
-    ({ params }) => DocumentController.embed(params),
-    embedDocumentSchema
-  )
+export const documentModule = new Elysia({ prefix: "/documents" })
+  .post("/upload", ({ body }) => DocumentController.upload(body), {
+    body: uploadDocumentSchema,
+  })
+  .post("/:id/embed", ({ params }) => DocumentController.embed(params), {
+    params: embedDocumentSchema,
+  })
   .get("/", () => DocumentController.list())
   .get("/:id", ({ params }) => DocumentController.detail(params));
