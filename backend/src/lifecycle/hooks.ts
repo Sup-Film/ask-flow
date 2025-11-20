@@ -1,12 +1,10 @@
 import Elysia from "elysia";
+import { logger } from "../lib/logger";
 
 export const globalHooks = new Elysia()
   .onBeforeHandle(({ request }) => {
-    console.log(`[REQUEST] ${request.method} ${request.url}`);
+    logger.info(`[REQUEST] ${request.method} ${request.url}`);
   })
   .onAfterHandle(({ request }) => {
-    console.log(`[RESPONSE] ${request.method} ${request.url}`);
-  })
-  .onError(({ code, error }) => {
-    console.error("[GLOBAL ERROR]", code, error);
+    logger.info(`[RESPONSE] ${request.method} ${request.url}`);
   });

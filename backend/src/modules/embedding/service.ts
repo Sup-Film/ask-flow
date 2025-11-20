@@ -1,6 +1,7 @@
 import { db } from "../../lib/db";
 import { openai } from "../../lib/openai";
 import { ChunkService } from "../chunk/service";
+import { BadRequestError, NotFoundError } from "../../lib/errors";
 import type { EmbedResult } from "./model";
 
 export const EmbeddingService = {
@@ -10,10 +11,11 @@ export const EmbeddingService = {
       documentId,
     ]);
 
-    if (doc.rows.length === 0) throw new Error("Document not found");
+    if (doc.rows.length === 0) throw new NotFoundError("Document not found");
 
     const content = doc.rows[0].content ?? "";
-    if (!content.trim().length) throw new Error("Document content empty");
+    if (!content.trim().length)
+      throw new BadRequestError("Document content empty");
 
     // 2. แบ่งข้อความยาวๆ เป็นชิ้นย่อยๆ (Chunks) เพื่อให้ส่งเข้า OpenAI ได้
     const chunks = ChunkService.chunk(content);

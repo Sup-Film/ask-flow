@@ -1,4 +1,6 @@
 import { PDFParse } from "pdf-parse";
+import { logger } from "../../lib/logger";
+import { BadRequestError, InternalServerError } from "../../lib/errors";
 
 export const extractText = async (
   buffer: Buffer,
@@ -15,10 +17,8 @@ export const extractText = async (
       const result = await parser.getText();
       return result.text.trim();
     } catch (err) {
-      console.error("[PDF Extract Error]", err);
-      throw new Error("Failed to extract text from PDF");
-    } finally {
-      await parser?.destroy();
+      logger.error("[PDF Extract Error]", { error: err });
+      throw new InternalServerError("Failed to extract text from PDF");
     }
   }
 
@@ -28,5 +28,5 @@ export const extractText = async (
   }
 
   // Unsupported MIME
-  throw new Error(`Unsupported file type: ${mime}`);
+  throw new BadRequestError(`Unsupported file type: ${mime}`);
 };
