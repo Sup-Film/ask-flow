@@ -2,7 +2,6 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { config } from "./config";
 import { globalHooks } from "./lifecycle/hooks";
-import { embeddingModule } from "./modules/embedding/route";
 import { chatModule } from "./modules/chat/router";
 import { documentModule } from "./modules/documents/router";
 import { vectorModule } from "./modules/vector/router";
@@ -10,7 +9,6 @@ import { vectorModule } from "./modules/vector/router";
 const app = new Elysia()
   .use(cors())
   .use(globalHooks) // global lifecycle hooks
-  .use(embeddingModule)
   .use(chatModule)
   .use(documentModule)
   .use(vectorModule)

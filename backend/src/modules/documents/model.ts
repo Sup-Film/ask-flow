@@ -3,5 +3,6 @@ export interface DocumentRecord {
   name: string;
   type: string;
   content: string;
-  created_at: Date;
+  status: string;
+  created_at: string;
 }

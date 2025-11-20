@@ -18,30 +18,51 @@ export const EmbeddingService = {
     // 2. แบ่งข้อความยาวๆ เป็นชิ้นย่อยๆ (Chunks) เพื่อให้ส่งเข้า OpenAI ได้
     const chunks = ChunkService.chunk(content);
 
+    // 3. ✨ ทำ Embedding ให้เสร็จก่อน (อยู่นอก Transaction)
+    // ทำแบบ sequential เพื่อลดโอกาสชน rate limit และควบคุมลำดับ
+    // จุดสำคัญคือคำนวณหมดก่อนเปิด DB Connection
+    const chunksWithVectors: { text: string; vector: number[] }[] = [];
     for (const chunk of chunks) {
-      // 3. ส่งแต่ละ Chunk ไปแปลงเป็น Vector (Embedding) ผ่าน OpenAI
       const embedding = await openai.embeddings.create({
         model: "text-embedding-3-small",
         input: chunk,
       });
-
-      const vector = embedding.data[0].embedding;
-
-      // 4. บันทึก Chunk และ Vector ลงในตาราง chunks
-      // เพื่อเอาไว้ค้นหาทีหลัง (Vector Search)
-      await db.query(
-        `
-        INSERT INTO chunks (document_id, text, embedding)
-        VALUES ($1, $2, $3)
-        `,
-        [documentId, chunk, JSON.stringify(vector)]
-      );
+      chunksWithVectors.push({
+        text: chunk,
+        vector: embedding.data[0].embedding,
+      });
     }
 
-    // 5. อัปเดตสถานะเอกสารว่าทำ Embedding เสร็จแล้ว
-    await db.query(`UPDATE documents SET status='embedded' WHERE id = $1`, [
-      documentId,
-    ]);
+    const client = await db.connect();
+    try {
+      await client.query("BEGIN");
+
+      // ลบของเดิม
+      await client.query(`DELETE FROM chunks WHERE document_id = $1`, [
+        documentId,
+      ]);
+
+      for (const item of chunksWithVectors) {
+        await client.query(
+          `
+          INSERT INTO chunks (document_id, text, embedding)
+          VALUES ($1, $2, $3::vector)
+          `,
+          [documentId, item.text, `[${item.vector.join(",")}]`]
+        );
+      }
+      await client.query(
+        `UPDATE documents SET status='embedded' WHERE id = $1`,
+        [documentId]
+      );
+
+      await client.query("COMMIT");
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      client.release();
+    }
 
     return {
       documentId,

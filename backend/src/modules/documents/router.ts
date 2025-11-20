@@ -13,4 +13,4 @@ export const documentModule = new Elysia({ prefix: "/documents" })
     params: embedDocumentSchema,
   })
   .get("/", () => DocumentController.list())
-  .get("/:id", ({ params }) => DocumentController.detail(params));
+  .get("/:id", ({ params, set }) => DocumentController.detail(params, set));

@@ -25,17 +25,18 @@ export const VectorService = {
       input: query,
     });
     const queryVector = embedRes.data[0].embedding;
+    const vectorLiteral = `[${queryVector.join(",")}]`;
 
     // 2. ค้นหา Chunks ที่มี Vector ใกล้เคียงกับคำถามมากที่สุด
     // ใช้ Operator <=> (Cosine Distance) ของ pgvector
     const { rows } = await db.query<{ text: string }>(
       `
-      SELECT text
-      FROM chunks
-      ORDER BY embedding <=> $1
-      LIMIT $2
-    `,
-      [JSON.stringify(queryVector), topK]
+        SELECT text
+        FROM chunks
+        ORDER BY embedding <=> $1::vector
+        LIMIT $2
+      `,
+      [vectorLiteral, topK]
     );
 
     return rows.map((r) => r.text);
