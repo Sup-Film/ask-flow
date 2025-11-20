@@ -1,5 +1,6 @@
 import { Elysia, ParseError, ValidationError } from "elysia";
 import { cors } from "@elysiajs/cors";
+rateLimit;
 import { config } from "./config";
 import { globalHooks } from "./lifecycle/hooks";
 import { chatModule } from "./modules/chat/router";
@@ -13,9 +14,18 @@ import {
   InternalServerError,
 } from "./lib/errors";
 import { logger } from "./lib/logger";
+import { rateLimit } from "elysia-rate-limit";
+import { helmet } from "elysia-helmet";
 
 const app = new Elysia()
   .use(cors())
+  .use(
+    rateLimit({
+      duration: 60_000, // หน้าต่างเวลา 1 นาที
+      max: 60, // อนุญาต 60 ครั้ง/หน้าต่าง
+    })
+  )
+  .use(helmet())
   .error({
     APP_ERROR: AppError,
     BAD_REQUEST: BadRequestError,

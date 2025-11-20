@@ -10,6 +10,8 @@
     "@elysiajs/static": "^1.4.7",
     "@types/pg": "^8.15.6",
     "elysia": "latest",
+    "elysia-helmet": "^3.0.0",
+    "elysia-rate-limit": "^4.4.2",
     "openai": "^6.9.0",
     "pdf-parse": "^2.4.5",
     "pg": "^8.16.3",
