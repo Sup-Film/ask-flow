@@ -3,6 +3,11 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import "./index.css";
+import type { LinksFunction } from "react-router";
+
+export const links: LinksFunction = () => [
+  { rel: "icon", href: "/vite.svg", type: "image/svg+xml" },
+];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

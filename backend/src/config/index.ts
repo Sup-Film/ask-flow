@@ -19,4 +19,6 @@ export const config = {
   POSTGRES_PORT: requireEnv("POSTGRES_PORT"),
   POSTGRES_DB: requireEnv("POSTGRES_DB"),
   OPENAI_API_KEY: requireEnv("OPENAI_API_KEY"),
+  JWT_SECRET: requireEnv("JWT_SECRET"),
+  JWT_REFRESH_SECRET: requireEnv("JWT_REFRESH_SECRET"),
 };

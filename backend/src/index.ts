@@ -3,6 +3,7 @@ import { cors } from "@elysiajs/cors";
 rateLimit;
 import { config } from "./config";
 import { globalHooks } from "./lifecycle/hooks";
+import { authModule } from "./modules/auth/router";
 import { chatModule } from "./modules/chat/router";
 import { documentModule } from "./modules/documents/router";
 import { vectorModule } from "./modules/vector/router";
@@ -34,6 +35,7 @@ const app = new Elysia()
     INTERNAL_SERVER_ERROR: InternalServerError,
   })
   .use(globalHooks)
+  .use(authModule)
   .use(chatModule)
   .use(documentModule)
   .use(vectorModule)
@@ -48,7 +50,7 @@ const app = new Elysia()
       };
     }
 
-    if (code === "PARSE" || error instanceof ParseError) {
+    if ((code as string) === "PARSE" || error instanceof ParseError) {
       set.status = (error as any)?.status ?? 400;
       return {
         success: false,
@@ -56,7 +58,7 @@ const app = new Elysia()
       };
     }
 
-    if (code === "NOT_FOUND") {
+    if ((code as string) === "NOT_FOUND") {
       logger.warn(`Route not found`);
       set.status = 404;
       return {
