@@ -9,7 +9,7 @@ const { combine, timestamp, json, errors, align, printf, colorize } =
 // กำหนดอาร์เรย์ `transports` สำหรับเก็บรูปแบบการส่งออก log ที่หลากหลาย
 const transports: winston.transport[] = [];
 
-// หากแอปไม่ได้รันในโหมด production ให้เพิ่มการส่งออก log ผ่านคอนโซล
+// หากแอปไม่ได้รันในโหมด production ให้เพิ่มการส่งออก log ผ่านคอนโซลแบบสวยงาม
 if (Bun.env.NODE_ENV !== "production") {
   transports.push(
     new winston.transports.Console({
@@ -25,6 +25,13 @@ if (Bun.env.NODE_ENV !== "production") {
           return `${timestamp} [${level}]: ${message}${metaStr}`;
         })
       ),
+    })
+  );
+} else {
+  // ในโหมด production ให้ใช้ JSON format สำหรับ Console
+  transports.push(
+    new winston.transports.Console({
+      format: combine(timestamp(), json()),
     })
   );
 }
