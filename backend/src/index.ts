@@ -16,15 +16,35 @@ import {
 } from "./lib/errors";
 import { logger } from "./lib/logger";
 import { rateLimit } from "elysia-rate-limit";
+import { swagger } from "@elysiajs/swagger";
 import { helmet } from "elysia-helmet";
 
 const app = new Elysia()
   .use(cors())
   .use(
-    rateLimit({
-      duration: 60_000, // หน้าต่างเวลา 1 นาที
-      max: 60, // อนุญาต 60 ครั้ง/หน้าต่าง
+    swagger({
+      provider: "swagger-ui",
+      documentation: {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        },
+        security: [{ bearerAuth: [] }],
+      },
     })
+  )
+  .use(
+    config.NODE_ENV === "test"
+      ? (app) => app
+      : rateLimit({
+          duration: 60_000, // หน้าต่างเวลา 1 นาที
+          max: 60, // อนุญาต 60 ครั้ง/หน้าต่าง
+        })
   )
   .use(helmet())
   .error({
@@ -95,7 +115,11 @@ const app = new Elysia()
     };
   });
 
-app.listen(config.PORT);
-logger.info(
-  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
-);
+export { app };
+
+if (import.meta.main) {
+  app.listen(config.PORT);
+  logger.info(
+    `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
+  );
+}

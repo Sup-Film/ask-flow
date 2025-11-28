@@ -10,6 +10,9 @@ dev-backend:
 dev-frontend:
 	cd frontend && bun dev
 
+dev:
+	make dev-backend & make dev-frontend
+
 build:
 	docker-compose build --no-cache
 

@@ -15,9 +15,12 @@ CREATE TABLE chunks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     document_id UUID REFERENCES documents (id) ON DELETE CASCADE,
     text TEXT NOT NULL,
-    embedding VECTOR (1536),
+    embedding VECTOR (768),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- สร้าง Index แบบ HNSW เพื่อให้ค้นหา Vector ได้เร็วขึ้น
+CREATE INDEX ON chunks USING hnsw (embedding vector_cosine_ops);
 
 -- สร้างตาราง chat_history
 CREATE TABLE chat_history (

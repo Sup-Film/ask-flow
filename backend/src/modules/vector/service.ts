@@ -15,16 +15,12 @@
  */
 
 import { db } from "../../lib/db";
-import { openai } from "../../lib/openai";
+import { ollamaEmbeddings } from "../../lib/ollama";
 
 export const VectorService = {
   async performSearch(query: string, topK: number = 5): Promise<string[]> {
     // 1. แปลงคำถามเป็น Vector (Embedding) ผ่าน OpenAI
-    const embedRes = await openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input: query,
-    });
-    const queryVector = embedRes.data[0].embedding;
+    const queryVector = await ollamaEmbeddings.embedQuery(query);
     const vectorLiteral = `[${queryVector.join(",")}]`;
 
     // 2. ค้นหา Chunks ที่มี Vector ใกล้เคียงกับคำถามมากที่สุด

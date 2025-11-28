@@ -7,7 +7,6 @@ export const chatModule = new Elysia({ prefix: "/chat" }).post(
   {
     body: t.Object({
       message: t.String(),
-      top_k: t.Optional(t.Number()),
     }),
   }
 );

@@ -1,5 +1,5 @@
 import { db } from "../../lib/db";
-import { openai } from "../../lib/openai";
+import { ollamaEmbeddings } from "../../lib/ollama";
 import { ChunkService } from "../chunk/service";
 import { BadRequestError, NotFoundError } from "../../lib/errors";
 import type { EmbedResult } from "./model";
@@ -24,14 +24,14 @@ export const EmbeddingService = {
     // ทำแบบ sequential เพื่อลดโอกาสชน rate limit และควบคุมลำดับ
     // จุดสำคัญคือคำนวณหมดก่อนเปิด DB Connection
     const chunksWithVectors: { text: string; vector: number[] }[] = [];
-    for (const chunk of chunks) {
-      const embedding = await openai.embeddings.create({
-        model: "text-embedding-3-small",
-        input: chunk,
-      });
+
+    // Use Ollama to embed documents in batch (or sequentially if needed, but embedDocuments handles it)
+    const vectors = await ollamaEmbeddings.embedDocuments(chunks);
+
+    for (let i = 0; i < chunks.length; i++) {
       chunksWithVectors.push({
-        text: chunk,
-        vector: embedding.data[0].embedding,
+        text: chunks[i],
+        vector: vectors[i],
       });
     }
 

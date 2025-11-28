@@ -110,6 +110,6 @@ export const authModule = new Elysia({ prefix: "/auth" })
       return { success: true };
     },
     {
-      detail: { tags: ["Auth"] },
+      detail: { tags: ["Auth"] },  
     }
   );

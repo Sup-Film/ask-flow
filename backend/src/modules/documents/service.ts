@@ -2,6 +2,8 @@ import { db } from "../../lib/db";
 import type { DocumentRecord } from "./model";
 import { extractText } from "./utils.extract";
 
+import { EmbeddingService } from "../embedding/service";
+
 export const DocumentService = {
   async upload(file: File): Promise<DocumentRecord> {
     // Convert File to Buffer เพื่อให้ runtime สามารถนำไปประมวลผลได้
@@ -20,6 +22,16 @@ export const DocumentService = {
       `,
       [file.name, file.type, text]
     );
+
+    // Trigger embedding process automatically
+    if (res.rows[0]?.id) {
+      // Run in background (fire and forget) or await if we want to block
+      // For better UX, we might want to await it so the user knows it's ready,
+      // or just let it run in background. Given the user request "ไม่ต้องทำขั้นตอนเพิ่ม",
+      // awaiting it ensures it's done when the request finishes.
+      await EmbeddingService.process(res.rows[0].id);
+    }
+
     // Return the inserted document record
     return res.rows[0];
   },

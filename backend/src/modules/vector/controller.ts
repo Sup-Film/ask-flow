@@ -5,11 +5,10 @@ export const VectorController = {
   search: async (
     body: {
       message: string;
-      top_k?: number;
     },
     set: Context["set"]
   ) => {
-    const results = await VectorService.performSearch(body.message, body.top_k);
+    const results = await VectorService.performSearch(body.message);
 
     return {
       results,
