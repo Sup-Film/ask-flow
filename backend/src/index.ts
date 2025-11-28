@@ -23,7 +23,6 @@ const app = new Elysia()
   .use(cors())
   .use(
     swagger({
-      provider: "swagger-ui",
       documentation: {
         components: {
           securitySchemes: {
